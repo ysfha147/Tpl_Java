@@ -1,6 +1,8 @@
+import gui.GUISimulator;
+import gui.Oval;
 import gui.Simulable;
 
-import java.awt.Point;
+import java.awt.*;
 import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,8 +32,10 @@ public class Balls extends Point {
      * Set all the Balls coordinates to the initial coordinates
      */
     public void reInit() {
-        balls_cords.clear();
-        balls_cords.addAll(balls_cords_init);
+        for(int i = 0; i < balls_cords.size(); i++ ){
+            balls_cords.set(i, (Point) balls_cords_init.get(i).clone());
+        }
+
     }
 
     @Override
@@ -44,34 +48,54 @@ public class Balls extends Point {
         return s.toString();
     }
 
+    public List<Point> getBalls_cords() {
+        return balls_cords;
+    }
 }
 
 class BallsSimulator implements Simulable {
 
     private Balls balls;
+    private GUISimulator gui;
+    private Color ballsColor;
 
     /* The list of the coordinates the current balls
      */
-    private List<Point> CurrentPoint;
-
-    private Iterator<Point> PointIterator;
 
     public BallsSimulator(){
         balls = new Balls();
     }
 
+    public BallsSimulator(Balls balls, GUISimulator gui, Color ballsColor){
+        this.gui = gui;
+        gui.setSimulable(this);
+        this.ballsColor = ballsColor;
+        this.balls = balls;
+        draw();
+    }
+
+
     @Override
     public void next() {
+        balls.translate(10, 10);
+        System.out.println(balls.toString());
+        draw();
 
     }
 
     @Override
     public void restart() {
-
+        balls.reInit();
+        System.out.println(balls.toString());
+        draw();
     }
 
-    private void planCoordinates(){
+    private void draw(){
+        gui.reset();
 
+        for(Point ball : this.balls.getBalls_cords()){
+            gui.addGraphicalElement(new Oval(ball.x, ball.y, ballsColor, ballsColor, 10));
+        }
     }
 }
 
