@@ -1,4 +1,5 @@
 import gui.GUISimulator;
+import gui.Rectangle;
 import gui.Simulable;
 
 import java.awt.*;
@@ -8,18 +9,25 @@ import java.util.List;
 
 public class Cells {
     /**/
-    private Boolean[][] cells_matrix;
+    private Cell[][] cells_matrix;
     private int height; private int width;
-    private Boolean[][] cells_matrix_init;
+    private Cell[][] cells_matrix_init;
 
     public Cells(int height, int width, Point... StateZero){
         try{
             this.width = width;
             this.height = height;
-            cells_matrix = new Boolean[height][width];
-            cells_matrix_init = new Boolean[height][width];
+            cells_matrix = new Cell[height][width];
+            cells_matrix_init = new Cell[height][width];
+            for (int i = 0;i<height;i++) {
+                for(int j=0;j<width;j++) {
+                    cells_matrix[i][j] = new Cell(0);
+                    cells_matrix_init[i][j] = new Cell(0);
+                }
+            }
             for (Point pt : StateZero){
-                cells_matrix[(int)pt.getX()-1][(int)pt.getY()-1] = Boolean.TRUE;
+                cells_matrix[(int)pt.getX()][(int)pt.getY()].setStatus(1);;
+                cells_matrix_init[(int)pt.getX()][(int)pt.getY()].setStatus(1);
             }
         }catch (IllegalAccessError e){
             System.out.println("Caught an IllegalArgumentException: on of the point has exceeded the given range");
@@ -29,17 +37,28 @@ public class Cells {
         try{
             this.width = width;
             this.height = height;
-            cells_matrix = new Boolean[height][width];
+            cells_matrix = new Cell[height][width];
+            cells_matrix_init = new Cell[height][width];
+            for (int i = 0;i<height;i++) {
+                for(int j=0;j<width;j++) {
+                    cells_matrix[i][j] = new Cell(0);
+                    cells_matrix_init[i][j] = new Cell(0);
+                }
+            }
             for (Point pt : StateZero){
-                cells_matrix[(int)pt.getX()-1][(int)pt.getY()-1] = Boolean.TRUE;
+                cells_matrix[(int)pt.getX()-1][(int)pt.getY()-1].setStatus(1);
             }
         }catch (IllegalAccessError e){
             System.out.println("Caught an IllegalArgumentException: on of the point has exceeded the given range");
         }
     }
 
-    public Boolean[][] getCells_matrix() {
+    public Cell[][] getCells_matrix() {
         return cells_matrix;
+    }
+
+    public Cell[][] getCells_matrix_init() {
+        return cells_matrix_init;
     }
 
     public int getHeight() {
@@ -50,126 +69,18 @@ public class Cells {
         return width;
     }
 
-    private Iterator<Point> NeighborIterator(int i, int j){
-        List<Point> neighbors = new ArrayList<>();
-        int n = height; int m = width;
-        if (i == 0){
-            if (j == 0){
-                neighbors.add(new Point(i,j+1));//right
-                neighbors.add(new Point(i+1, j+1));//right down
-                neighbors.add(new Point(n-1,j+1));//right up
-                neighbors.add(new Point(i,m-1)); //left
-                neighbors.add(new Point(i+1, m-1));//left down
-                neighbors.add(new Point(n-1, m-1));//left up
-                neighbors.add(new Point(i+1, j));//down
-                neighbors.add(new Point(n-1,j));//up
-            }
-            else if (j == m-1){
-                neighbors.add(new Point(i,0));//right
-                neighbors.add(new Point(i+1, 0));//right down
-                neighbors.add(new Point(n-1,0));//right up
-                neighbors.add(new Point(i,j-1)); //left
-                neighbors.add(new Point(i+1, j-1));//left down
-                neighbors.add(new Point(n-1, m-2));//left up
-                neighbors.add(new Point(i+1, j));//down
-                neighbors.add(new Point(n-1,j));//up
-            }
-            else{
-                neighbors.add(new Point(i,j+1));//right
-                neighbors.add(new Point(i+1, j+1));//right down
-                neighbors.add(new Point(n-1,j+1));//right up
-                neighbors.add(new Point(i,j-1)); //left
-                neighbors.add(new Point(i+1, j-1));//left down
-                neighbors.add(new Point(n-1, j-1));//left up
-                neighbors.add(new Point(i+1, j));//down
-                neighbors.add(new Point(n-1,j));//up
-            }
-
-        }
-        else if (i == n-1) {
-            if (j == 0){
-                neighbors.add(new Point(i,j+1));//right
-                neighbors.add(new Point(0, j+1));//right down
-                neighbors.add(new Point(i-1,j+1));//right up
-                neighbors.add(new Point(i,m-1)); //left
-                neighbors.add(new Point(0, m-1));//left down
-                neighbors.add(new Point(i-1, m-1));//left up
-                neighbors.add(new Point(0, j));//down
-                neighbors.add(new Point(i-1,j));//up
-            }
-            else if (j == m-1){
-                neighbors.add(new Point(i,0));//right
-                neighbors.add(new Point(0, 0));//right down
-                neighbors.add(new Point(n-1,0));//right up
-                neighbors.add(new Point(i,j-1)); //left
-                neighbors.add(new Point(0, j-1));//left down
-                neighbors.add(new Point(i-1, j-1));//left up
-                neighbors.add(new Point(0, j));//down
-                neighbors.add(new Point(i-1,j));//up
-            }
-            else{
-                neighbors.add(new Point(i,j+1));//right
-                neighbors.add(new Point(0, j+1));//right down
-                neighbors.add(new Point(i-1,j+1));//right up
-                neighbors.add(new Point(i,j-1)); //left
-                neighbors.add(new Point(0, j-1));//left down
-                neighbors.add(new Point(i-1, j-1));//left up
-                neighbors.add(new Point(0, j));//down
-                neighbors.add(new Point(i-1,j));//up
+    int countNeighbors(int row, int column) {
+        int counter = 0;
+        for(int i=-1; i<2; i++) {
+            for (int j=-1; j<2; j++) {
+                if (i!=0 || j!=0) {
+                    int new_row = (row+i+width)%width;
+                    int new_column = (column+j+height)%height;
+                    counter += cells_matrix[new_row][new_column].getStatus();
+                }
             }
         }
-        else{
-            if (j == 0){
-                neighbors.add(new Point(i,j+1));//right
-                neighbors.add(new Point(i+1, j+1));//right down
-                neighbors.add(new Point(i-1,j+1));//right up
-                neighbors.add(new Point(i,m-1)); //left
-                neighbors.add(new Point(i+1, m-1));//left down
-                neighbors.add(new Point(i-1, m-1));//left up
-                neighbors.add(new Point(i+1, j));//down
-                neighbors.add(new Point(i-1,j));//up
-            }
-            else if (j == m-1){
-                neighbors.add(new Point(i,0));//right
-                neighbors.add(new Point(i+1, 0));//right down
-                neighbors.add(new Point(i-1,0));//right up
-                neighbors.add(new Point(i,j-1)); //left
-                neighbors.add(new Point(i+1, j-1));//left down
-                neighbors.add(new Point(i-1, j-1));//left up
-                neighbors.add(new Point(i+1, j));//down
-                neighbors.add(new Point(i-1,j));//up
-            }
-            else{
-                neighbors.add(new Point(i,j+1));//right
-                neighbors.add(new Point(i+1, j+1));//right down
-                neighbors.add(new Point(i-1,j+1));//right up
-                neighbors.add(new Point(i,j-1)); //left
-                neighbors.add(new Point(i+1, j-1));//left down
-                neighbors.add(new Point(i-1, j-1));//left up
-                neighbors.add(new Point(i+1, j));//down
-                neighbors.add(new Point(i-1,j));//up
-            }
-        }
-
-        return neighbors.iterator();
-    }
-
-    /**
-     * returns true if the cell in the row i and column j is can be set Alive
-     * in the next step and false if not
-     * @param i
-     * @param j
-     * @return
-     */
-    public boolean isSetAlive(int i, int j) {
-        int NeighborsAlive = 0;
-
-        Iterator<Point> Neighbors = NeighborIterator(i, j);
-        while (Neighbors.hasNext()) {
-            Point neighbor = Neighbors.next();
-            NeighborsAlive = cells_matrix[neighbor.x][neighbor.y] ? NeighborsAlive + 1 : NeighborsAlive;
-        }
-        return NeighborsAlive >= 3;
+        return counter;
     }
 
 
@@ -182,6 +93,38 @@ public class Cells {
             s.append("\n");
         }
         return s.toString();
+    }
+
+    public void setCells_matrix_init() {
+        for (int i=0;i<height;i++) {
+            for (int j=0;j<width; j++) {
+                cells_matrix[i][j].setStatus(cells_matrix_init[i][j].getStatus());
+            }
+        }
+    }
+
+    public void update() {
+        ArrayList<Cell> aliveCells = new ArrayList<Cell>();
+        ArrayList<Cell> deadCells = new ArrayList<Cell>();
+        for (int i=0;i<height;i++) {
+            for (int j=0; j<width;j++) {
+                if (cells_matrix[i][j].getStatus() == 0) {
+                    if (countNeighbors(i, j) == 3) {
+                        aliveCells.add(cells_matrix[i][j]);
+                    }
+                }
+                else if (countNeighbors(i, j) != 3 && countNeighbors(i, j) != 2) {
+                    deadCells.add(cells_matrix[i][j]);
+                }
+
+            }
+        }
+        for (Cell aliveCell : aliveCells) {
+            aliveCell.setStatus(1);
+        }
+        for (Cell deadCell : deadCells) {
+            deadCell.setStatus(0);
+        }
     }
 }
 
@@ -196,35 +139,36 @@ class CellsSimulator implements Simulable{
     private Cells cells;
     private GUISimulator gui;
     private Color cellsColor;
-    private Boolean[][] cells_matrix;
 
 
 
-    public CellsSimulator(Cells cells, GUISimulator gui, Color cellsColor){
+    public CellsSimulator(Cells cells, GUISimulator gui){
         this.gui = gui;
         gui.setSimulable(this);
-        this.cellsColor = cellsColor;
         this.cells = cells;
-        this.cells_matrix = cells.getCells_matrix();
         draw();
     }
 
     @Override
     public void next() {
-        for (int i = 0; i < cells.getHeight(); i++){
-            for (int j = 0; j < cells.getWidth(); j++){
-                cells_matrix[i][j] = cells.isSetAlive(i,j) ? true : null;
-            }
-        }
+        cells.update();
+        draw();
     }
 
     @Override
     public void restart() {
-
+        cells.setCells_matrix_init();
+        draw();
     }
 
     private void draw(){
-
+        gui.reset();
+        for(int i = 0; i<cells.getHeight(); i++) {
+            for (int j=0; j<cells.getWidth();j++) {
+                Color color =  cells.getCells_matrix()[i][j].getStatus() == 1 ? Color.blue : Color.black;
+                gui.addGraphicalElement(new Rectangle(i*10,j*10,color,color,10));
+            }
+        }
     }
 
 
