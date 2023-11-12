@@ -13,6 +13,7 @@ public class Cells {
     private int height; private int width;
     private Cell[][] cells_matrix_init;
 
+
     public Cells(int height, int width, Point... StateZero){
         try{
             this.width = width;
@@ -53,6 +54,7 @@ public class Cells {
         }
     }
 
+
     public Cell[][] getCells_matrix() {
         return cells_matrix;
     }
@@ -69,18 +71,25 @@ public class Cells {
         return width;
     }
 
-    int countNeighbors(int row, int column) {
+
+    int countNeighbors(int row, int column, int maxStatus) {
         int counter = 0;
         for(int i=-1; i<2; i++) {
             for (int j=-1; j<2; j++) {
                 if (i!=0 || j!=0) {
                     int new_row = (row+i+width)%width;
                     int new_column = (column+j+height)%height;
-                    counter += cells_matrix[new_row][new_column].getStatus();
+                    if (cells_matrix[new_row][new_column].getStatus() == (cells_matrix[row][column].getStatus() +1)%maxStatus) {
+                        counter++;
+                    }
                 }
             }
         }
         return counter;
+    }
+
+    int countNeighbors(int row, int colum) {
+        return countNeighbors(row,colum,2);
     }
 
 
@@ -113,7 +122,7 @@ public class Cells {
                         aliveCells.add(cells_matrix[i][j]);
                     }
                 }
-                else if (countNeighbors(i, j) != 3 && countNeighbors(i, j) != 2) {
+                else if (countNeighbors(i, j) != 6 && countNeighbors(i, j) != 5) {
                     deadCells.add(cells_matrix[i][j]);
                 }
 
@@ -138,15 +147,18 @@ class CellsSimulator implements Simulable{
 
     private Cells cells;
     private GUISimulator gui;
-    private Color cellsColor;
 
 
 
-    public CellsSimulator(Cells cells, GUISimulator gui){
-        this.gui = gui;
+    public CellsSimulator(Cells cells){
+        this.gui = new GUISimulator(cells.getHeight()*10, cells.getWidth()*10, Color.WHITE);
         gui.setSimulable(this);
         this.cells = cells;
         draw();
+    }
+
+    public GUISimulator getGui() {
+        return gui;
     }
 
     @Override
@@ -165,8 +177,8 @@ class CellsSimulator implements Simulable{
         gui.reset();
         for(int i = 0; i<cells.getHeight(); i++) {
             for (int j=0; j<cells.getWidth();j++) {
-                Color color =  cells.getCells_matrix()[i][j].getStatus() == 1 ? Color.blue : Color.black;
-                gui.addGraphicalElement(new Rectangle(i*10,j*10,color,color,10));
+                Color color =  cells.getCells_matrix()[i][j].getStatus() == 1 ? Color.black : Color.white;
+                gui.addGraphicalElement(new Rectangle(i*10,j*10,Color.gray,color,10));
             }
         }
     }
