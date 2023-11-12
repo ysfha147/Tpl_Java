@@ -22,6 +22,9 @@ public class Schelling extends Cells{
             }
         }
     }
+    public int getMaxNeighbors(){
+        return maxNeighbors;
+    }
 
     public void addHabitationInit(int row, int column, int family_status){
         super.getCells_matrix()[row][column].setStatus(family_status);
@@ -58,8 +61,10 @@ public class Schelling extends Cells{
                 if (i!=0 || j!=0) {
                     int new_row = (row+i+super.getWidth())%super.getWidth();
                     int new_column = (column+j+super.getHeight())%super.getHeight();
-                    if (super.getCells_matrix()[new_row][new_column].getStatus() != super.getCells_matrix()[row][column].getStatus()) {
-                        counter++;
+                    if(super.getCells_matrix()[new_row][new_column].getStatus() != 0) {
+                        if (super.getCells_matrix()[new_row][new_column].getStatus() != super.getCells_matrix()[row][column].getStatus()) {
+                            counter++;
+                        }
                     }
                 }
             }
@@ -70,10 +75,9 @@ public class Schelling extends Cells{
     @Override
     public void update() {
         ArrayList<Cell> habitationsThatWillBecomeVacant = new ArrayList<>();
-        Iterator<Cell> iterator = vacantHabitation.iterator();
         for (int i=0;i<super.getHeight();i++) {
             for (int j=0; j<super.getWidth();j++) {
-                if(super.getCells_matrix()[i][j].getStatus() == 0) {
+                if(super.getCells_matrix()[i][j].getStatus() != 0) {
                     if (countNeighbors(i, j) > maxNeighbors) {
                         habitationsThatWillBecomeVacant.add(super.getCells_matrix()[i][j]);
                     }
@@ -82,24 +86,28 @@ public class Schelling extends Cells{
             }
         }
 
-        Cell currentHabitation = new Cell(0);
-        //TODO
-        if(iterator.hasNext()){
-            currentHabitation = iterator.next();
-        } else throw new ArrayStoreException("Not enough space");
 
-        for(int i= 0; i < habitationsThatWillBecomeVacant.size()-1; i++){
-            if(iterator.hasNext()){
-                Cell currentCellCopy = currentHabitation;
-                currentHabitation.setStatus(habitation.getStatus());
-                currentHabitation = iterator.next();
-                vacantHabitation.remove(currentCellCopy);
-                habitation.setStatus(0);
 
+        Iterator<Cell> iterator = vacantHabitation.iterator();
+        ArrayList<Cell> habitationsThatWillBecomeVacantCopy = new ArrayList<>(habitationsThatWillBecomeVacant) ;
+        while (iterator.hasNext()) {
+            Cell habitation = iterator.next();
+
+            if (!habitationsThatWillBecomeVacant.isEmpty()) {
+                Cell newHabitation = habitationsThatWillBecomeVacant.remove(0);
+                habitation.setStatus(newHabitation.getStatus());
+                newHabitation.setStatus(0);
+
+                iterator.remove();  // Use iterator's remove method
+                continue;
             }
-
-
+            break;
         }
+
+        if(!habitationsThatWillBecomeVacant.isEmpty()) throw new ArrayStoreException("not enough vacant places");
+
+        vacantHabitation.addAll(habitationsThatWillBecomeVacantCopy);
+
 
     }
 }
@@ -135,16 +143,18 @@ class SchellingSimulator implements Simulable {
         draw();
     }
 
-    static Color generateColor(int value) {
-        value = Math.abs(value);
+    Color generateColor(int value) {
 
-        // Generate RGB components based on the value
-        int red = (value * 37) % 256;
-        int green = (value * 56) % 256;
-        int blue = (value * 63) % 256;
+
+        float hue = (float) ((value*69)%359)/359;
+        float saturation = value == 0 ? 0.0f : 1.0f;
+        float brightness = 1;
+
+
+
 
         // Create and return the Color object
-        return new Color(red, green, blue);
+        return Color.getHSBColor(hue, saturation, brightness);
     }
 
 
