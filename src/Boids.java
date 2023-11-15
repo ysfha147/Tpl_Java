@@ -1,4 +1,7 @@
 import gui.GUISimulator;
+import gui.GraphicalElement;
+import gui.Oval;
+import gui.Rectangle;
 import gui.Simulable;
 
 import java.awt.*;
@@ -13,19 +16,23 @@ public class Boids {
     private List<Agent> ListAgentsInit;
 
     private Vector2d CenterOfMass;
-    private Vector2d Place = new Vector2d(0,0);
+    private Vector2d Place = new Vector2d(500,500);
     private Vector2d Wind = new Vector2d(0,0);
-
+    private Point MinPoint = new Point(0,0);private Point MaxPoint = new Point(1000,1000);
 
 
     public Boids(Agent... agents) {
         ListAgents = new ArrayList<>(List.of(agents));
         ListAgentsInit = new ArrayList<>(List.of(agents));
-
+        CenterOfMass = new Vector2d();
         for (Agent agent : this.ListAgents){
             CenterOfMass.add(agent);
         }
         CenterOfMass.multiply(ListAgents.size());
+    }
+
+    public void setMaxPoint(Point maxPoint) {
+        this.MaxPoint = maxPoint;
     }
 
     public void setBoidsInit(){
@@ -91,7 +98,7 @@ public class Boids {
      * @return
      */
     public Vector2d MatchVelocity(Agent a){
-        Vector2d Pvj = new Vector2d();
+        Vector2d Pvj = new Vector2d(0,0);
         for (Agent agent : this.ListAgents){
             if (!a.equals(agent)){
                 Pvj.add(agent.getVelocity());
@@ -99,7 +106,7 @@ public class Boids {
         }
         Pvj.multiply((double) 1/ListAgents.size());
 
-        return (new Vector2d((Pvj.getX() - a.getVelocity().getX())/8, (Pvj.getY() - a.getVelocity().getY())/8));
+        return new Vector2d((Pvj.getX() - a.getVelocity().getX())/8, (Pvj.getY() - a.getVelocity().getY())/8);
     }
 
     public Vector2d StrongWind(Agent a, Vector2d wind){
@@ -118,9 +125,11 @@ public class Boids {
     }
 
 
+
     public void update(){
-        Vector2d V1; Vector2d V2; Vector2d V3; Vector2d V4; Vector2d V5;
-        int m1 = 1; int m2 = 1; int m3 = 1; int m4 = 1; int m5 = 1;
+        Vector2d V1; Vector2d V2; Vector2d V3; Vector2d V4; Vector2d V5; Vector2d V6;
+        int m1 = 1; int m2 = 1; int m3 = 1; int m4 = 1; int m5 = 0;
+
 
         for (Agent a : this.ListAgents){
             V1 = MoveToCenterOfMass(a);
@@ -154,6 +163,7 @@ class BoidsSimulator implements Simulable {
         this.gui = new GUISimulator(height, width, Color.gray);
         gui.setSimulable(this);
         this.boids = boids;
+        boids.setMaxPoint(new Point(width, height));
         draw();
     }
 
@@ -175,6 +185,17 @@ class BoidsSimulator implements Simulable {
 
     public void draw(){
         gui.reset();
+        for (Agent agent : this.boids.getListAgents()){
+            gui.addGraphicalElement(new Oval((int)agent.getX(), (int)agent.getY()  , Color.WHITE, Color.PINK, 30));
+            Vector2d vect = new Vector2d((int)agent.getX(),(int)agent.getY()+10);
+            Vector2d velocityVector = agent.getVelocity();
+            velocityVector.normalize();
+            double angle = Math.atan2(velocityVector.getX(), velocityVector.getY());
+            vect.rotate(angle, agent);
+            gui.addGraphicalElement(new Rectangle((int)vect.getX(),(int)vect.getY() , Color.BLACK, Color.WHITE, 5));
+
+        }
+
 
     }
 }

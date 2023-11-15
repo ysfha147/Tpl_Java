@@ -1,3 +1,5 @@
+import java.math.BigDecimal;
+
 public class Vector2d {
 
     private double x;
@@ -59,8 +61,12 @@ public class Vector2d {
         this.x = x * scalar; this.y = y * scalar;
     }
 
+
     public Vector2d getMultiply(double scalar){
         return new Vector2d(x*scalar, y*scalar);
+    }
+    public Vector2d getMultiply(Vector2d other){
+        return new Vector2d(x*other.getX(), y*other.getY());
     }
 
     public double dotProduct(Vector2d other) {
@@ -75,10 +81,16 @@ public class Vector2d {
         return Math.atan2(crossProduct(other), dotProduct(other));
     }
 
-    public void rotate(double angle) {
-        double cos = Math.cos(angle);
-        double sin = Math.sin(angle);
-        this.x = x * cos - y * sin; this.y = x * sin + y * cos;
+    public void rotate(double angleInDegrees, Vector2d pivot) {
+
+        this.x -= pivot.getX();
+        this.y -= pivot.getY();
+
+        double newX = this.x * Math.cos(angleInDegrees) + this.y * Math.sin(angleInDegrees);
+        double newY = -this.x * Math.sin(angleInDegrees) + this.y * Math.cos(angleInDegrees);
+
+        this.x = newX + pivot.getX();
+        this.y = newY + pivot.getY();
     }
     @Override
     public boolean equals(Object other) {
