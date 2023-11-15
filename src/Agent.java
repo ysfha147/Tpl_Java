@@ -5,9 +5,8 @@ import java.util.Vector;
 public class Agent extends Vector2d{
     private Vector2d acc;
     private Vector2d velocity;
-    private Vector2d velocityOrientation = new Vector2d(1,1);
 
-    public Agent(int x, int y, int Vx, int Vy){
+    public Agent(double  x, double y, double Vx, double Vy){
         super(x,y);
         this.velocity = new Vector2d(Vx, Vy);
         this.acc = new Vector2d();
@@ -16,6 +15,7 @@ public class Agent extends Vector2d{
 
 
     public void updateAgent(Vector2d... Vectors){
+        this.acc = new Vector2d(0,0);
         for (Vector2d v: Vectors){
             this.acc.add(v);
         }
@@ -39,45 +39,6 @@ public class Agent extends Vector2d{
         }
     }
 
-
-
-
-//    public void BoundPosition(Point MinPoint ,Point MaxPoint){
-//        Vector2d v = new Vector2d(0,0);
-//        Vector2d xAxisNormalVectorUP = new Vector2d(1,0);
-//        Vector2d xAxisNormalVectorDown = new Vector2d(-1,0);
-//        Vector2d yAxisNormalVectorLeft = new Vector2d(0,1);
-//        Vector2d yAxisNormalVectorRight = new Vector2d(0,-1);
-//
-//        //30 is the radius
-//        if (this.getX() - 30 < MinPoint.getX()){
-////            double dotProduct = velocity.dotProduct(xAxisNormalVectorUP);
-////            this.velocity.setX(velocity.getX() - 2*dotProduct*xAxisNormalVectorUP.getX());
-////            this.velocity.setY(velocity.getY() - 2*dotProduct*xAxisNormalVectorUP.getY());
-////            this.add(velocity);
-//            velocityOrientation.setX(-velocityOrientation.getX());
-//            this.velocity.setX(-this.velocity.getX());
-//            this.add()
-//        }
-//        else if (this.getX() + 30> MaxPoint.getX()) {
-//            double dotProduct = velocity.dotProduct(xAxisNormalVectorDown);
-//            this.velocity.setX(velocity.getX() - 2*dotProduct*xAxisNormalVectorDown.getX());
-//            this.velocity.setY(velocity.getY() - 2*dotProduct*xAxisNormalVectorDown.getY());
-//            this.add(velocity);
-//        }
-//        if (this.getY() - 30< MinPoint.getY()){
-//            double dotProduct = velocity.dotProduct(yAxisNormalVectorLeft);
-//            this.velocity.setX(velocity.getX() - 2*dotProduct*yAxisNormalVectorLeft.getX());
-//            this.velocity.setY(velocity.getY() - 2*dotProduct*yAxisNormalVectorLeft.getY());
-//            this.add(velocity);
-//        }
-//        else if (this.getY() + 30> MaxPoint.getY()){
-//            double dotProduct = velocity.dotProduct(yAxisNormalVectorRight);
-//            this.velocity.setX(velocity.getX() - 2*dotProduct*yAxisNormalVectorLeft.getX());
-//            this.velocity.setY(velocity.getY() - 2*dotProduct*yAxisNormalVectorLeft.getY());
-//            this.add(velocity);
-//        }
-//    }
 
 
     public void setVelocity(Vector2d velocity) {

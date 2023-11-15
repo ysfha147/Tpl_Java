@@ -16,7 +16,7 @@ public class Boids {
     private List<Agent> ListAgentsInit;
 
     private Vector2d CenterOfMass;
-    private Vector2d Place = new Vector2d(500,500);
+    private Vector2d Place = new Vector2d(0,0);
     private Vector2d Wind = new Vector2d(0,0);
     private Point MinPoint = new Point(0,0);private Point MaxPoint = new Point(1000,1000);
 
@@ -90,6 +90,7 @@ public class Boids {
             }
         }
         return c;
+
     }
 
     /**
@@ -147,8 +148,8 @@ public class Boids {
     }
 
     public void update(){
-        Vector2d V1; Vector2d V2; Vector2d V3; Vector2d V4; Vector2d V5; Vector2d V6;
-        int m1 = 1; int m2 = 1; int m3 = 1; int m4 = 1; int m5 = 0;
+        Vector2d V1; Vector2d V2; Vector2d V3; Vector2d V4; Vector2d V5;
+        int m1 = 1; int m2 = 1; int m3 = 1; int m4 = 1; int m5 = 1;
 
 
         for (Agent a : this.ListAgents){
