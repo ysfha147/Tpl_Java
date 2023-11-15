@@ -39,6 +39,9 @@ public class Agent extends Vector2d{
         }
     }
 
+
+
+
 //    public void BoundPosition(Point MinPoint ,Point MaxPoint){
 //        Vector2d v = new Vector2d(0,0);
 //        Vector2d xAxisNormalVectorUP = new Vector2d(1,0);

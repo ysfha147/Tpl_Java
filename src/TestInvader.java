@@ -3,10 +3,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import gui.GUISimulator;
-import gui.Rectangle;
-import gui.Simulable;
-import gui.Text;
+import gui.*;
 
 
 public class TestInvader {
@@ -40,6 +37,8 @@ class Invader implements Simulable {
 
     /** Ordonnée courante de l'invader (bord supérieur) */
     private int y;
+
+    private int i = 0;
 
     /** Itérateur sur les abcisses de l'invader au cours du temps */
     private Iterator<Integer> xIterator;
@@ -107,7 +106,8 @@ class Invader implements Simulable {
         if (this.xIterator.hasNext())
             this.x = this.xIterator.next();		
         if (this.yIterator.hasNext())
-            this.y = this.yIterator.next();		
+            this.y = this.yIterator.next();
+        i++;
         draw();
     }
 
@@ -123,6 +123,22 @@ class Invader implements Simulable {
      */
     private void draw() {
         gui.reset();	// clear the window
+        int X = 500; int Y = 400; int height = 10; int basewidth = 110;
+
+
+        gui.addGraphicalElement(new Oval(X, Y   , invaderColor, invaderColor, 30));
+        Vector2d vect = new Vector2d(X,Y-10);
+        double angleInDegrees = i*10;
+
+        vect.rotate(angleInDegrees, new Vector2d(X,Y));
+
+        gui.addGraphicalElement(new Rectangle((int)vect.getX(),(int)vect.getY() , Color.BLACK, Color.WHITE, 5));
+
+
+
+
+
+
 
         gui.addGraphicalElement(new Rectangle(x + 30, y     , invaderColor, invaderColor, 10));
         gui.addGraphicalElement(new Rectangle(x + 40, y     , invaderColor, invaderColor, 10));

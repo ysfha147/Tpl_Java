@@ -124,7 +124,27 @@ public class Boids {
         return new Vector2d((Place.getX() - a.getX())/100, (Place.getY() - a.getY())/100);
     }
 
+    public void enforceBoundaries(Agent a, Point minBound, Point maxBound) {
+        Vector2d v = new Vector2d(0,0);
+        // Ensure x-coordinate is within bounds
+        if (a.getX() - 15 < minBound.getX()) {
+            a.setX(minBound.getX() + 15);
+            v.setX(3*Math.abs(a.getVelocity().getX()));  // Adjust velocity
+        } else if (a.getX() + 15> maxBound.getX()) {
+            a.setX(maxBound.getX() - 15);
+            v.setX(-3*Math.abs(a.getVelocity().getX())); // Adjust velocity
+        }
 
+        // Ensure y-coordinate is within bounds
+        if (a.getY() - 15< minBound.getY()) {
+            a.setY(minBound.getY() + 15);
+            v.setY(3*Math.abs(a.getVelocity().getY()));  // Adjust velocity
+        } else if (a.getY() + 15> maxBound.getY()) {
+            a.setY(maxBound.getY() - 15);
+            v.setY(-3*Math.abs(a.getVelocity().getY())); // Adjust velocity
+        }
+        a.updateAgent(v);
+    }
 
     public void update(){
         Vector2d V1; Vector2d V2; Vector2d V3; Vector2d V4; Vector2d V5; Vector2d V6;
@@ -140,6 +160,7 @@ public class Boids {
             V5 = StrongWind(a, Wind);
             a.updateAgent(V1.getMultiply(m1),
                     V2.getMultiply(m2), V3.getMultiply(m3), V4.getMultiply(m4), V5.getMultiply(m5));
+            enforceBoundaries(a, MinPoint, MaxPoint);
         }
     }
 
