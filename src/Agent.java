@@ -6,13 +6,18 @@ public class Agent extends Vector2d{
     private Vector2d acc;
     private Vector2d velocity;
 
-    public Agent(double  x, double y, double Vx, double Vy){
+    private int limitVelocity;
+
+    public Agent(double  x, double y, double Vx, double Vy, int limitVelocity){
         super(x,y);
         this.velocity = new Vector2d(Vx, Vy);
         this.acc = new Vector2d();
+        this.limitVelocity = limitVelocity;
     }
 
-
+    public int getLimitVelocity() {
+        return limitVelocity;
+    }
 
     public void updateAgent(Vector2d... Vectors){
         this.acc = new Vector2d(0,0);
@@ -22,7 +27,7 @@ public class Agent extends Vector2d{
        // this.acc.normalize();
         this.velocity.add(acc);
 
-        this.LimiteVelocity(10);
+        this.LimiteVelocity(limitVelocity);
         this.add(velocity);
     }
 

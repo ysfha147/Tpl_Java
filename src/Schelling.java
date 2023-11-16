@@ -113,17 +113,21 @@ public class Schelling extends Cells{
 }
 
 
-class SchellingSimulator implements Simulable {
+class SchellingSimulator extends Event implements Simulable {
 
-    private Schelling habitations;
-    private GUISimulator gui;
+    private final Schelling habitations;
+    private final GUISimulator gui;
+
+    private final EventManager eventManager = new EventManager();
 
 
 
-    public SchellingSimulator(Schelling habitations){
+    public SchellingSimulator(Schelling habitations, int date){
+        super(date);
         this.gui = new GUISimulator(habitations.getHeight()*10, habitations.getWidth()*10, Color.WHITE);
         gui.setSimulable(this);
         this.habitations = habitations;
+        eventManager.addEvent(this);
         draw();
     }
 
@@ -133,8 +137,9 @@ class SchellingSimulator implements Simulable {
 
     @Override
     public void next() {
-        habitations.update();
-        draw();
+        if (!eventManager.isFinished()) {
+            eventManager.next();
+        }
     }
 
     @Override
@@ -170,4 +175,11 @@ class SchellingSimulator implements Simulable {
     }
 
 
+    @Override
+    public void execute() {
+        habitations.update();
+        this.setDate(getDate()+1);
+        eventManager.addEvent(this);
+        draw();
+    }
 }

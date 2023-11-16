@@ -20,7 +20,7 @@ public class TestSchelling {
             habitations.addHabitationInit(random.nextInt(50), random.nextInt(50), random.nextInt(5));
         }
 
-        SchellingSimulator schellingSimulator =new SchellingSimulator(habitations);
+        SchellingSimulator schellingSimulator =new SchellingSimulator(habitations,0);
         schellingSimulator.getGui().setSimulable(schellingSimulator);
 
     }

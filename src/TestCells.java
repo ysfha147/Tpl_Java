@@ -15,7 +15,7 @@ public class TestCells {
             matrix_init[random.nextInt(50)][random.nextInt(50)].setStatus(1);
         }
 
-        CellsSimulator cellsSimulator =new CellsSimulator(cells);
+        CellsSimulator cellsSimulator =new CellsSimulator(cells,2);
         cellsSimulator.getGui().setSimulable(cellsSimulator);
 
     }

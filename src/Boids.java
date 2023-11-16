@@ -12,23 +12,43 @@ import java.util.function.Function;
 public class Boids {
     //Question : should we use another class for the rules functions or we just
     //write them in this class
-    private List<Agent> ListAgents;
-    private List<Agent> ListAgentsInit;
+    private final List<Agent> listAgents;
+    private final List<Agent> listAgentsInit;
 
-    private Vector2d CenterOfMass;
+    private final Vector2d centerOfMass;
     private Vector2d Place = new Vector2d(0,0);
     private Vector2d Wind = new Vector2d(0,0);
-    private Point MinPoint = new Point(0,0);private Point MaxPoint = new Point(1000,1000);
+    private final Point MinPoint = new Point(0,0);private Point MaxPoint = new Point(1000,1000);
+
+    private final int distance;
 
 
-    public Boids(Agent... agents) {
-        ListAgents = new ArrayList<>(List.of(agents));
-        ListAgentsInit = new ArrayList<>(List.of(agents));
-        CenterOfMass = new Vector2d();
-        for (Agent agent : this.ListAgents){
-            CenterOfMass.add(agent);
+    public Boids(int distance, Agent... agents) {
+        listAgents = new ArrayList<>(List.of(agents));
+        listAgentsInit = new ArrayList<>();
+        for(Agent agent : agents) {
+            listAgentsInit.add(new Agent(agent.getX(),agent.getY(),agent.getVelocity().getX(),agent.getVelocity().getY(),agent.getLimitVelocity()));
         }
-        CenterOfMass.multiply(ListAgents.size());
+        centerOfMass = new Vector2d();
+        for (Agent agent : this.listAgents){
+            centerOfMass.add(agent);
+        }
+        centerOfMass.multiply((double) 1 /listAgents.size());
+        this.distance = distance;
+    }
+
+    public Boids(int distance,ArrayList<Agent> agents) {
+        listAgents = agents;
+        listAgentsInit = new ArrayList<>();
+        for(Agent agent : agents) {
+            listAgentsInit.add(new Agent(agent.getX(),agent.getY(),agent.getVelocity().getX(),agent.getVelocity().getY(),agent.getLimitVelocity()));
+        }
+        centerOfMass = new Vector2d();
+        for (Agent agent : this.listAgents){
+            centerOfMass.add(agent);
+        }
+        centerOfMass.multiply((double) 1 /listAgents.size());
+        this.distance = distance;
     }
 
     public void setMaxPoint(Point maxPoint) {
@@ -36,7 +56,14 @@ public class Boids {
     }
 
     public void setBoidsInit(){
-        this.ListAgents = new ArrayList<>(this.ListAgentsInit);
+        centerOfMass.setX(0);
+        centerOfMass.setY(0);
+        for (int i=0; i<listAgentsInit.size();i++) {
+            Agent agent = listAgentsInit.get(i);
+            listAgents.set(i, new Agent(agent.getX(), agent.getY(), agent.getVelocity().getX(), agent.getVelocity().getY(), agent.getLimitVelocity()));
+            centerOfMass.add(agent);
+        }
+        centerOfMass.multiply((double) 1 /listAgents.size());
     }
 
     public void setWind(Vector2d wind) {
@@ -48,11 +75,11 @@ public class Boids {
     }
 
     public void AddAgent(Agent agent){
-        int n = this.ListAgents.size();
-        CenterOfMass.setX((CenterOfMass.getX()*n + agent.getX())/(n+1));
-        CenterOfMass.setY((CenterOfMass.getX()*n + agent.getY())/(n+1));
+        int n = this.listAgents.size();
+        centerOfMass.setX((centerOfMass.getX()*n + agent.getX())/(n+1));
+        centerOfMass.setY((centerOfMass.getX()*n + agent.getY())/(n+1));
 
-        ListAgents.add(agent);
+        listAgents.add(agent);
 
     }
 
@@ -61,15 +88,15 @@ public class Boids {
      * @param a: agent to move
      * @return velocity vector to add
      */
-    public Vector2d MoveToCenterOfMass(Agent a){
+    public Vector2d MoveTocenterOfMass(Agent a){
         Vector2d Pcj = new Vector2d(0,0);
-        for (Agent agent : this.ListAgents){
+        for (Agent agent : this.listAgents){
             if (!a.equals(agent)){
                 Pcj.add(agent);
             }
         }
 
-        Pcj.multiply((double)1/this.ListAgents.size());
+        Pcj.multiply((double)1/this.listAgents.size());
 
         return (new Vector2d((Pcj.getX() - a.getX())/100, (Pcj.getY() - a.getY())/100));
     }
@@ -82,9 +109,9 @@ public class Boids {
      */
     public Vector2d KeepSmallDistance(Agent a){
         Vector2d c = new Vector2d();
-        for (Agent agent : this.ListAgents){
+        for (Agent agent : this.listAgents){
             if (!a.equals(agent)){
-                if (a.getDistance(agent) < 100){
+                if (a.getDistance(agent) < distance){
                     c.add(new Vector2d(a.getX() - agent.getX(), a.getY()-agent.getY()));
                 }
             }
@@ -100,12 +127,12 @@ public class Boids {
      */
     public Vector2d MatchVelocity(Agent a){
         Vector2d Pvj = new Vector2d(0,0);
-        for (Agent agent : this.ListAgents){
+        for (Agent agent : this.listAgents){
             if (!a.equals(agent)){
                 Pvj.add(agent.getVelocity());
             }
         }
-        Pvj.multiply((double) 1/ListAgents.size());
+        Pvj.multiply((double) 1/listAgents.size());
 
         return new Vector2d((Pvj.getX() - a.getVelocity().getX())/8, (Pvj.getY() - a.getVelocity().getY())/8);
     }
@@ -152,8 +179,8 @@ public class Boids {
         int m1 = 1; int m2 = 1; int m3 = 1; int m4 = 1; int m5 = 1;
 
 
-        for (Agent a : this.ListAgents){
-            V1 = MoveToCenterOfMass(a);
+        for (Agent a : this.listAgents){
+            V1 = MoveTocenterOfMass(a);
             V2 = KeepSmallDistance(a);
             V3 = MatchVelocity(a);
             V4 = TendToPlace(a, Place);
@@ -168,24 +195,31 @@ public class Boids {
 
 
 
-    public List<Agent> getListAgents() {
-        return ListAgents;
+    public List<Agent> getlistAgents() {
+        return listAgents;
     }
 
 
 }
 
 
-class BoidsSimulator implements Simulable {
+class BoidsSimulator extends Event implements Simulable {
 
-    private Boids boids;
-    private GUISimulator gui;
+    private final Boids boids;
+    private final GUISimulator gui;
 
-    public BoidsSimulator(int height, int width, Boids boids){
+    private final EventManager eventManager = new EventManager();
+
+    private final int frequency;
+
+    public BoidsSimulator(int height, int width, Boids boids,int date, int frequency){
+        super(date);
+        this.frequency = frequency;
         this.gui = new GUISimulator(height, width, Color.gray);
         gui.setSimulable(this);
         this.boids = boids;
         boids.setMaxPoint(new Point(width, height));
+        eventManager.addEvent(this);
         draw();
     }
 
@@ -195,8 +229,9 @@ class BoidsSimulator implements Simulable {
 
     @Override
     public void next() {
-        boids.update();
-        draw();
+        if (!eventManager.isFinished()) {
+            eventManager.next();
+        }
     }
 
     @Override
@@ -207,7 +242,7 @@ class BoidsSimulator implements Simulable {
 
     public void draw(){
         gui.reset();
-        for (Agent agent : this.boids.getListAgents()){
+        for (Agent agent : this.boids.getlistAgents()){
             gui.addGraphicalElement(new Oval((int)agent.getX(), (int)agent.getY()  , Color.WHITE, Color.PINK, 30));
             Vector2d vect = new Vector2d((int)agent.getX(),(int)agent.getY()+10);
             Vector2d velocityVector = agent.getVelocity();
@@ -219,6 +254,14 @@ class BoidsSimulator implements Simulable {
         }
 
 
+    }
+
+    @Override
+    public void execute() {
+        boids.update();
+        this.setDate(getDate()+frequency);
+        eventManager.addEvent(this);
+        draw();
     }
 }
 

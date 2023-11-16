@@ -42,15 +42,19 @@ public class ImmigrationGame extends Cells{
 }
 
 
-class ImmigrationGameSimulator implements Simulable {
+class ImmigrationGameSimulator extends  Event implements Simulable {
 
-    private ImmigrationGame cells;
-    private GUISimulator gui;
+    private final ImmigrationGame cells;
+    private final GUISimulator gui;
 
-    public ImmigrationGameSimulator(ImmigrationGame cells) {
+    private final EventManager eventManager = new EventManager();
+
+    public ImmigrationGameSimulator(ImmigrationGame cells, int date) {
+        super(date);
         this.gui = new GUISimulator(cells.getHeight()*10,cells.getWidth()*10,Color.white);
         gui.setSimulable(this);
         this.cells = cells;
+        eventManager.addEvent(this);
         draw();
     }
 
@@ -60,8 +64,9 @@ class ImmigrationGameSimulator implements Simulable {
 
     @Override
     public void next() {
-        cells.update();
-        draw();
+        if (!eventManager.isFinished()) {
+            eventManager.next();
+        }
     }
 
     @Override
@@ -88,4 +93,11 @@ class ImmigrationGameSimulator implements Simulable {
         }
     }
 
+    @Override
+    public void execute() {
+        cells.update();
+        this.setDate(getDate()+1);
+        eventManager.addEvent(this);
+        draw();
+    }
 }
