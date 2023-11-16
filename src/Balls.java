@@ -17,19 +17,20 @@ public class Balls extends Point {
         balls_cords = new ArrayList<Point>();
         balls_cords_init = new ArrayList<Point>();
     }
+    // Method to add a ball at a specified point to the list
     public void addBalls(Point p) {
-        balls_cords.add(new Point(p));
-        balls_cords_init.add(new Point(p));
+        balls_cords.add(new Point(p)); // Adds a new Point object to balls_cords list
+        balls_cords_init.add(new Point(p)); // Adds a new Point object to balls_cords_init list
     }
-
+    // Method to translate all the balls' coordinates by dx and dy
     public void translate(int dx, int dy) {
         for (Point p : balls_cords) {
-            p.translate(dx, dy);
+            p.translate(dx, dy); // Translates each Point object in balls_cords
         }
     }
 
     /**
-     * Set all the Balls coordinates to the initial coordinates
+     * Reset all the balls' coordinates to their initial coordinates
      */
     public void reInit() {
         for(int i = 0; i < balls_cords.size(); i++ ){
@@ -37,17 +38,18 @@ public class Balls extends Point {
         }
 
     }
-
+    // Overridden toString() method to display coordinates of all balls
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
 
         for (Point p : balls_cords) {
             s.append("x cord: ").append(p.getX()).append(" y cord: ").append(p.getY()).append("\n");
+            // Constructs a string displaying x and y coordinates of each ball
         }
         return s.toString();
     }
-
+    // Getter method to access the list of balls' coordinates
     public List<Point> getBalls_cords() {
         return balls_cords;
     }
@@ -62,10 +64,11 @@ class BallsSimulator implements Simulable {
     /* The list of the coordinates the current balls
      */
 
+    // Default constructor initializing balls
     public BallsSimulator(){
         balls = new Balls();
     }
-
+    // Constructor initializing BallsSimulator with given parameters
     public BallsSimulator(Balls balls, GUISimulator gui, Color ballsColor){
         this.gui = gui;
         gui.setSimulable(this);
@@ -74,27 +77,29 @@ class BallsSimulator implements Simulable {
         draw();
     }
 
-
+    // Moves the balls by a fixed amount in each direction and updates the display
     @Override
     public void next() {
-        balls.translate(10, 10);
-        System.out.println(balls.toString());
-        draw();
+        balls.translate(10, 10); // Translates the balls by 10 in x and y directions
+        System.out.println(balls.toString());  // Prints the current ball positions (it's optional for the simulation )
+        draw(); // Calls the draw method to display balls initially
 
     }
-
+    // Restores the initial positions of the balls and updates the display
     @Override
     public void restart() {
-        balls.reInit();
-        System.out.println(balls.toString());
-        draw();
+        balls.reInit(); // Resets the balls' positions to their initial values
+        System.out.println(balls.toString()); // Prints the initial ball positions (it's optional for the simulation )
+        draw(); // Redraws the initial ball positions
     }
 
+    // Draws the balls on the GUI
     private void draw(){
-        gui.reset();
-
+        gui.reset(); // Clears the GUI canvas
+        // Adds graphical elements representing balls to the GUI canvas
         for(Point ball : this.balls.getBalls_cords()){
             gui.addGraphicalElement(new Oval(ball.x, ball.y, ballsColor, ballsColor, 10));
+            // Adds an oval shape representing each ball at its coordinates
         }
     }
 }

@@ -7,31 +7,37 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MultipleBoidsSimulator extends Event implements Simulable {
+public class MultipleBoidsSimulator implements Simulable {
 
-    private List<Boids> multipleBoids;
-
-    private EventManager eventManager = new EventManager();
+    private List<BoidsSimulator> multipleBoids = new ArrayList<BoidsSimulator>();
 
     private final GUISimulator gui;
 
-    public MultipleBoidsSimulator(int height, int width, long date,ArrayList<Boids> multipleBoids) {
-        super(date);
+    int distancePredatory;
+
+    public MultipleBoidsSimulator(int height, int width, long date,int distancePredatory, ArrayList<Boids> multipleBoids) {
+        this.distancePredatory = distancePredatory;
         this.gui = new GUISimulator(height, width, Color.gray);
         gui.setSimulable(this);
-        this.multipleBoids = multipleBoids;
-        eventManager.addEvent(this);
+        for (Boids boids : multipleBoids) {
+            BoidsSimulator boidsSimulator = new BoidsSimulator(height,width,boids,date,gui);
+            this.multipleBoids.add(boidsSimulator);
+            boidsSimulator.draw();
+        }
         draw();
 
     }
 
 
-    public MultipleBoidsSimulator(int height, int width, long date, Boids... multipleBoids) {
-        super(date);
+    public MultipleBoidsSimulator(int height, int width, long date, int distancePredatory, Boids... multipleBoids) {
+        this.distancePredatory = distancePredatory;
         this.gui = new GUISimulator(height, width, Color.gray);
         gui.setSimulable(this);
-        this.multipleBoids = new ArrayList<>(List.of(multipleBoids));
-        eventManager.addEvent(this);
+        for (Boids boids : multipleBoids) {
+            BoidsSimulator boidsSimulator = new BoidsSimulator(height,width,boids,date,gui);
+            this.multipleBoids.add(boidsSimulator);
+            boidsSimulator.draw();
+        }
         draw();
     }
 
@@ -41,39 +47,66 @@ public class MultipleBoidsSimulator extends Event implements Simulable {
 
 
     @Override
-    public void execute() {
-        for (Boids boids : multipleBoids) {
-            boids.update();
-            this.setDate(getDate()+boids.getStep());
-            eventManager.addEvent(this);
-            draw();
-        }
-    }
-
-    @Override
     public void next() {
-        if (!eventManager.isFinished()) {
-            eventManager.next();
+        for (BoidsSimulator boidsSimulator : multipleBoids ) {
+            PowerInterBoids.power(boidsSimulator,multipleBoids,distancePredatory);
+            assert boidsSimulator.getEventManager().getListOfEvents().peek() != null;
+            boidsSimulator.getEventManager().setCurrentDate(boidsSimulator.getEventManager().getCurrentDate()+1);
+            if (boidsSimulator.getEventManager().getListOfEvents().peek().getDate() <= boidsSimulator.getEventManager().getCurrentDate()) {
+                BoidsSimulator event = (BoidsSimulator) boidsSimulator.getEventManager().getListOfEvents().poll();
+                assert event != null;
+                event.getBoids().update();
+                event.setDate(event.getDate()+event.getBoids().getStep());
+                event.getEventManager().addEvent(event);
+            }
         }
+        draw();
     }
 
     @Override
     public void restart() {
-        for (Boids boids : multipleBoids) {
-            boids.setBoidsInit();
+        for (BoidsSimulator boidsSimulator : multipleBoids) {
+            boidsSimulator.getBoids().setBoidsInit();
+            boidsSimulator.getEventManager().setCurrentDate(-1);
+            boidsSimulator.getBoids().setCenterOfMass();
         }
-        eventManager.setCurrentDate(0);
         draw();
     }
 
-    void draw() {
+    public void draw() {
         gui.reset();
-        for (Boids boids : multipleBoids) {
-            for (Agent agent : boids.getlistAgents()){
-                BoidsSimulator.draw_agent(boids, agent, gui);
+        for (BoidsSimulator boidsSimulator : multipleBoids ) {
+            for (Agent agent : boidsSimulator.getBoids().getlistAgents()){
+                boidsSimulator.draw_agent(boidsSimulator.getBoids(), agent, gui);
             }
         }
     }
 
+}
 
+class PowerInterBoids {
+    public static void power(BoidsSimulator boidsSimulator,List<BoidsSimulator> multipleBoids, int distancePredatory) {
+        if (boidsSimulator.getDate() <= boidsSimulator.getEventManager().getCurrentDate()+1) {
+            if (boidsSimulator.getBoids().isPredatory()) {
+                for (BoidsSimulator preyBoids : multipleBoids) {
+                    if (!preyBoids.getBoids().isPredatory()) {
+                        for (Agent agent : boidsSimulator.getBoids().getlistAgents()) {
+                            Vector2d power = Boids.TendToPlace(agent, preyBoids.getBoids().getCenterOfMass());
+                            agent.updateAgent(power.getMultiply(10));
+                        }
+                    }
+                }
+            }
+            else {
+                for (BoidsSimulator predatoryBoids : multipleBoids) {
+                    if(predatoryBoids.getBoids().isPredatory()) {
+                        for (Agent agent : boidsSimulator.getBoids().getlistAgents()) {
+                            Vector2d power = predatoryBoids.getBoids().KeepSmallDistance(agent, distancePredatory);
+                            agent.updateAgent(power.getMultiply(10));
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

@@ -27,6 +27,9 @@ class EventManager {
 
     private PriorityQueue<Event> listOfEvents = new PriorityQueue<Event>();
 
+    public PriorityQueue<Event> getListOfEvents() {
+        return listOfEvents;
+    }
 
     public void addEvent(Event event) {
         listOfEvents.add(event);
@@ -34,6 +37,10 @@ class EventManager {
 
     public void setCurrentDate(long currentDate) {
         this.currentDate = currentDate;
+    }
+
+    public long getCurrentDate() {
+        return currentDate;
     }
 
     public void next() {

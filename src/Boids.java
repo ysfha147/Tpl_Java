@@ -15,7 +15,7 @@ public class Boids {
     private final List<Agent> listAgents;
     private final List<Agent> listAgentsInit;
 
-    private final Vector2d centerOfMass;
+    private Vector2d centerOfMass;
     private Vector2d Place = new Vector2d(0,0);
     private Vector2d Wind = new Vector2d(0,0);
     private final Point MinPoint = new Point(0,0);private Point MaxPoint = new Point(1000,1000);
@@ -25,6 +25,8 @@ public class Boids {
     private final int step;
 
     private final Color color;
+
+    private boolean isPredatory = false;
 
 
     public Boids(int distance,int step,Color color, Agent... agents) {
@@ -59,6 +61,38 @@ public class Boids {
         this.distance = distance;
     }
 
+    public boolean isPredatory() {
+        return isPredatory;
+    }
+
+    public int getDistance() {
+        return distance;
+    }
+
+    public Vector2d getPlace() {
+        return Place;
+    }
+
+    public Vector2d getWind() {
+        return Wind;
+    }
+
+    public Point getMaxPoint() {
+        return MaxPoint;
+    }
+
+    public Point getMinPoint() {
+        return MinPoint;
+    }
+
+    public Vector2d getCenterOfMass() {
+        return centerOfMass;
+    }
+
+    public void setPredatory(boolean predatory) {
+        isPredatory = predatory;
+    }
+
     public int getStep() {
         return step;
     }
@@ -67,8 +101,20 @@ public class Boids {
         return color;
     }
 
+    public void setMinPoint(Point minPoint) {
+        this.MaxPoint = minPoint;
+    }
     public void setMaxPoint(Point maxPoint) {
         this.MaxPoint = maxPoint;
+    }
+
+    public void setCenterOfMass() {
+        centerOfMass.setX(0);
+        centerOfMass.setY(0);
+        for (Agent agent : listAgents) {
+            centerOfMass.add(agent);
+        }
+        centerOfMass.multiply((double) 1 /listAgents.size());
     }
 
     public void setBoidsInit(){
@@ -123,7 +169,7 @@ public class Boids {
      * @param a
      * @return
      */
-    public Vector2d KeepSmallDistance(Agent a){
+    public Vector2d KeepSmallDistance(Agent a, int distance){
         Vector2d c = new Vector2d();
         for (Agent agent : this.listAgents){
             if (!a.equals(agent)){
@@ -164,7 +210,7 @@ public class Boids {
      * @param Place
      * @return
      */
-    public Vector2d TendToPlace(Agent a, Vector2d Place){
+    public static Vector2d TendToPlace(Agent a, Vector2d Place){
         return new Vector2d((Place.getX() - a.getX())/100, (Place.getY() - a.getY())/100);
     }
 
@@ -197,7 +243,7 @@ public class Boids {
 
         for (Agent a : this.listAgents){
             V1 = MoveTocenterOfMass(a);
-            V2 = KeepSmallDistance(a);
+            V2 = KeepSmallDistance(a, distance);
             V3 = MatchVelocity(a);
             V4 = TendToPlace(a, Place);
             //if we want to tend away from a place make m4 negative
@@ -206,6 +252,7 @@ public class Boids {
                     V2.getMultiply(m2), V3.getMultiply(m3), V4.getMultiply(m4), V5.getMultiply(m5));
             enforceBoundaries(a, MinPoint, MaxPoint);
         }
+        setCenterOfMass();
     }
 
 
@@ -226,7 +273,7 @@ class BoidsSimulator extends Event implements Simulable {
 
     private final EventManager eventManager = new EventManager();
 
-    public BoidsSimulator(int height, int width, Boids boids,int date){
+    public BoidsSimulator(int height, int width, Boids boids,long date){
         super(date);
         this.gui = new GUISimulator(height, width, Color.gray);
         gui.setSimulable(this);
@@ -235,9 +282,23 @@ class BoidsSimulator extends Event implements Simulable {
         eventManager.addEvent(this);
         draw();
     }
-
+    public BoidsSimulator(int height, int width, Boids boids,long date, GUISimulator gui){
+        super(date);
+        this.gui = gui;
+        this.boids = boids;
+        boids.setMaxPoint(new Point(width, height));
+        eventManager.addEvent(this);
+    }
     public GUISimulator getGui() {
         return gui;
+    }
+
+    public Boids getBoids() {
+        return boids;
+    }
+
+    public EventManager getEventManager() {
+        return eventManager;
     }
 
     @Override
@@ -250,7 +311,8 @@ class BoidsSimulator extends Event implements Simulable {
     @Override
     public void restart() {
         boids.setBoidsInit();
-        eventManager.setCurrentDate(0);
+        eventManager.setCurrentDate(-1);
+        boids.setCenterOfMass();
         draw();
     }
 
