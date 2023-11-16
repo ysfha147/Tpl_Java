@@ -62,6 +62,7 @@ public class MultipleBoidsSimulator extends Event implements Simulable {
         for (Boids boids : multipleBoids) {
             boids.setBoidsInit();
         }
+        eventManager.setCurrentDate(0);
         draw();
     }
 

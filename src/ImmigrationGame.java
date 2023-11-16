@@ -72,6 +72,7 @@ class ImmigrationGameSimulator extends  Event implements Simulable {
     @Override
     public void restart() {
         cells.setCells_matrix_init();
+        eventManager.setCurrentDate(0);
         draw();
     }
 

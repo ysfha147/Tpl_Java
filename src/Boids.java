@@ -24,7 +24,7 @@ public class Boids {
 
     private final int step;
 
-    private Color color;
+    private final Color color;
 
 
     public Boids(int distance,int step,Color color, Agent... agents) {
@@ -192,7 +192,7 @@ public class Boids {
 
     public void update(){
         Vector2d V1; Vector2d V2; Vector2d V3; Vector2d V4; Vector2d V5;
-        int m1 = 1; int m2 = 1; int m3 = 1; int m4 = 1; int m5 = 1;
+        int m1 = 1; double m2 = 1; int m3 = 1; int m4 = 1; int m5 = 1;
 
 
         for (Agent a : this.listAgents){
@@ -250,6 +250,7 @@ class BoidsSimulator extends Event implements Simulable {
     @Override
     public void restart() {
         boids.setBoidsInit();
+        eventManager.setCurrentDate(0);
         draw();
     }
 

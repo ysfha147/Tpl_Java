@@ -32,6 +32,10 @@ class EventManager {
         listOfEvents.add(event);
     }
 
+    public void setCurrentDate(long currentDate) {
+        this.currentDate = currentDate;
+    }
+
     public void next() {
         assert listOfEvents.peek() != null;
         currentDate++;
