@@ -20,14 +20,25 @@ public class MultipleBoidsSimulator extends Event implements Simulable {
         this.gui = new GUISimulator(height, width, Color.gray);
         gui.setSimulable(this);
         this.multipleBoids = multipleBoids;
+        eventManager.addEvent(this);
+        draw();
+
     }
+
 
     public MultipleBoidsSimulator(int height, int width, long date, Boids... multipleBoids) {
         super(date);
         this.gui = new GUISimulator(height, width, Color.gray);
         gui.setSimulable(this);
         this.multipleBoids = new ArrayList<>(List.of(multipleBoids));
+        eventManager.addEvent(this);
+        draw();
     }
+
+    public GUISimulator getGui() {
+        return gui;
+    }
+
 
     @Override
     public void execute() {
@@ -41,12 +52,17 @@ public class MultipleBoidsSimulator extends Event implements Simulable {
 
     @Override
     public void next() {
-
+        if (!eventManager.isFinished()) {
+            eventManager.next();
+        }
     }
 
     @Override
     public void restart() {
-
+        for (Boids boids : multipleBoids) {
+            boids.setBoidsInit();
+        }
+        draw();
     }
 
     void draw() {
