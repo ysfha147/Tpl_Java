@@ -22,8 +22,14 @@ public class Boids {
 
     private final int distance;
 
+    private final int step;
 
-    public Boids(int distance, Agent... agents) {
+    private Color color;
+
+
+    public Boids(int distance,int step,Color color, Agent... agents) {
+        this.color = color;
+        this.step = step;
         listAgents = new ArrayList<>(List.of(agents));
         listAgentsInit = new ArrayList<>();
         for(Agent agent : agents) {
@@ -37,7 +43,9 @@ public class Boids {
         this.distance = distance;
     }
 
-    public Boids(int distance,ArrayList<Agent> agents) {
+    public Boids(int distance,int step,Color color, ArrayList<Agent> agents) {
+        this.color = color;
+        this.step = step;
         listAgents = agents;
         listAgentsInit = new ArrayList<>();
         for(Agent agent : agents) {
@@ -49,6 +57,14 @@ public class Boids {
         }
         centerOfMass.multiply((double) 1 /listAgents.size());
         this.distance = distance;
+    }
+
+    public int getStep() {
+        return step;
+    }
+
+    public Color getColor() {
+        return color;
     }
 
     public void setMaxPoint(Point maxPoint) {
@@ -210,11 +226,8 @@ class BoidsSimulator extends Event implements Simulable {
 
     private final EventManager eventManager = new EventManager();
 
-    private final int frequency;
-
-    public BoidsSimulator(int height, int width, Boids boids,int date, int frequency){
+    public BoidsSimulator(int height, int width, Boids boids,int date){
         super(date);
-        this.frequency = frequency;
         this.gui = new GUISimulator(height, width, Color.gray);
         gui.setSimulable(this);
         this.boids = boids;
@@ -243,23 +256,24 @@ class BoidsSimulator extends Event implements Simulable {
     public void draw(){
         gui.reset();
         for (Agent agent : this.boids.getlistAgents()){
-            gui.addGraphicalElement(new Oval((int)agent.getX(), (int)agent.getY()  , Color.WHITE, Color.PINK, 30));
-            Vector2d vect = new Vector2d((int)agent.getX(),(int)agent.getY()+10);
-            Vector2d velocityVector = agent.getVelocity();
-            velocityVector.normalize();
-            double angle = Math.atan2(velocityVector.getX(), velocityVector.getY());
-            vect.rotate(angle, agent);
-            gui.addGraphicalElement(new Rectangle((int)vect.getX(),(int)vect.getY() , Color.BLACK, Color.WHITE, 5));
-
+            draw_agent(boids, agent, gui);
         }
+    }
 
-
+    static void draw_agent(Boids boids, Agent agent, GUISimulator gui) {
+        gui.addGraphicalElement(new Oval((int)agent.getX(), (int)agent.getY()  , Color.WHITE, boids.getColor(), 30));
+        Vector2d vect = new Vector2d((int)agent.getX(),(int)agent.getY()+10);
+        Vector2d velocityVector = agent.getVelocity();
+        velocityVector.normalize();
+        double angle = Math.atan2(velocityVector.getX(), velocityVector.getY());
+        vect.rotate(angle, agent);
+        gui.addGraphicalElement(new Rectangle((int)vect.getX(),(int)vect.getY() , Color.BLACK, Color.WHITE, 5));
     }
 
     @Override
     public void execute() {
         boids.update();
-        this.setDate(getDate()+frequency);
+        this.setDate(getDate()+boids.getStep());
         eventManager.addEvent(this);
         draw();
     }

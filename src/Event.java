@@ -16,7 +16,7 @@ public abstract class Event implements Comparable<Event> {
         return date;
     }
     public abstract void execute();
-
+    @Override
     public int compareTo(Event e) {
         return (int) (date - e.date);
     }
