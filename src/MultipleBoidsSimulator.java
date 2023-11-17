@@ -1,7 +1,5 @@
-import gui.GUISimulator;
-import gui.Oval;
+import gui.*;
 import gui.Rectangle;
-import gui.Simulable;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -76,6 +74,7 @@ public class MultipleBoidsSimulator implements Simulable {
 
     public void draw() {
         gui.reset();
+
         for (BoidsSimulator boidsSimulator : multipleBoids ) {
             for (Agent agent : boidsSimulator.getBoids().getlistAgents()){
                 boidsSimulator.draw_agent(boidsSimulator.getBoids(), agent, gui);

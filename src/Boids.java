@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.function.Function;
 
 public class Boids {
-    //Question : should we use another class for the rules functions or we just
-    //write them in this class
     private final List<Agent> listAgents;
     private final List<Agent> listAgentsInit;
 
@@ -216,29 +214,29 @@ public class Boids {
 
     public void enforceBoundaries(Agent a, Point minBound, Point maxBound) {
         Vector2d v = new Vector2d(0,0);
-        // Ensure x-coordinate is within bounds
+
         if (a.getX() - 15 < minBound.getX()) {
             a.setX(minBound.getX() + 15);
-            v.setX(3*Math.abs(a.getVelocity().getX()));  // Adjust velocity
+            v.setX(3*Math.abs(a.getVelocity().getX()));
         } else if (a.getX() + 15> maxBound.getX()) {
             a.setX(maxBound.getX() - 15);
-            v.setX(-3*Math.abs(a.getVelocity().getX())); // Adjust velocity
+            v.setX(-3*Math.abs(a.getVelocity().getX()));
         }
 
-        // Ensure y-coordinate is within bounds
+
         if (a.getY() - 15< minBound.getY()) {
             a.setY(minBound.getY() + 15);
-            v.setY(3*Math.abs(a.getVelocity().getY()));  // Adjust velocity
+            v.setY(3*Math.abs(a.getVelocity().getY()));
         } else if (a.getY() + 15> maxBound.getY()) {
             a.setY(maxBound.getY() - 15);
-            v.setY(-3*Math.abs(a.getVelocity().getY())); // Adjust velocity
+            v.setY(-3*Math.abs(a.getVelocity().getY()));
         }
         a.updateAgent(v);
     }
 
     public void update(){
         Vector2d V1; Vector2d V2; Vector2d V3; Vector2d V4; Vector2d V5;
-        int m1 = 1; double m2 = 1; int m3 = 1; int m4 = 1; int m5 = 1;
+        double m1 = 0.5; double m2 = 1.5; double m3 = 1; double m4 = 1; double m5 = 1;
 
 
         for (Agent a : this.listAgents){
@@ -270,11 +268,13 @@ class BoidsSimulator extends Event implements Simulable {
 
     private final Boids boids;
     private final GUISimulator gui;
+    private int height; private int width;
 
     private final EventManager eventManager = new EventManager();
 
     public BoidsSimulator(int height, int width, Boids boids,long date){
         super(date);
+        this.height = height; this.width = width;
         this.gui = new GUISimulator(height, width, Color.gray);
         gui.setSimulable(this);
         this.boids = boids;
@@ -301,6 +301,14 @@ class BoidsSimulator extends Event implements Simulable {
         return eventManager;
     }
 
+    public int getHeight() {
+        return height;
+    }
+
+    public int getWidth(){
+        return width;
+    }
+
     @Override
     public void next() {
         if (!eventManager.isFinished()) {
@@ -325,13 +333,16 @@ class BoidsSimulator extends Event implements Simulable {
     }
 
     static void draw_agent(Boids boids, Agent agent, GUISimulator gui) {
-        gui.addGraphicalElement(new Oval((int)agent.getX(), (int)agent.getY()  , Color.WHITE, boids.getColor(), 30));
+        int r;
+        r = boids.isPredatory() ? 40 : 20;
+
+        gui.addGraphicalElement(new Oval((int)agent.getX(), (int)agent.getY()  , Color.WHITE, boids.getColor(), r));
         Vector2d vect = new Vector2d((int)agent.getX(),(int)agent.getY()+10);
         Vector2d velocityVector = agent.getVelocity();
         velocityVector.normalize();
         double angle = Math.atan2(velocityVector.getX(), velocityVector.getY());
         vect.rotate(angle, agent);
-        gui.addGraphicalElement(new Rectangle((int)vect.getX(),(int)vect.getY() , Color.BLACK, Color.WHITE, 5));
+        gui.addGraphicalElement(new Oval((int)vect.getX(),(int)vect.getY() , Color.BLACK, Color.WHITE, (int)(r/4)));
     }
 
     @Override
