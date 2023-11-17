@@ -1,7 +1,7 @@
 import java.awt.*;
 import java.util.Vector;
 
-
+// Represents a boid agent with position and velocity.
 public class Agent extends Vector2d{
     private Vector2d acc;
     private Vector2d velocity;

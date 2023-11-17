@@ -1,5 +1,6 @@
 import java.math.BigDecimal;
 
+// Represents a 2D vector.
 public class Vector2d {
 
     private double x;
