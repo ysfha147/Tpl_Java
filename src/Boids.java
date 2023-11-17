@@ -212,6 +212,12 @@ public class Boids {
         return new Vector2d((Place.getX() - a.getX())/100, (Place.getY() - a.getY())/100);
     }
 
+    /**
+     * This function keeps the agent inside the bounder defined by minBound and maxBound
+     * @param a
+     * @param minBound
+     * @param maxBound
+     */
     public void enforceBoundaries(Agent a, Point minBound, Point maxBound) {
         Vector2d v = new Vector2d(0,0);
 
@@ -236,8 +242,10 @@ public class Boids {
 
     public void update(){
         Vector2d V1; Vector2d V2; Vector2d V3; Vector2d V4; Vector2d V5;
-        double m1 = 0.5; double m2 = 1.5; double m3 = 1; double m4 = 1; double m5 = 1;
+        //you can adjust the value of m1...m5 if you want a force to be
+        // more or less powerful or tht it is applied in the opposite direction (m<0)
 
+        double m1 = 0.5; double m2 = 1.5; double m3 = 1; double m4 = 1; double m5 = 1;
 
         for (Agent a : this.listAgents){
             V1 = MoveTocenterOfMass(a);
