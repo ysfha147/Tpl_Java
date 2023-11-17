@@ -313,6 +313,7 @@ class BoidsSimulator extends Event implements Simulable {
         boids.setBoidsInit();
         eventManager.setCurrentDate(-1);
         boids.setCenterOfMass();
+        super.setDate(0);
         draw();
     }
 

@@ -69,6 +69,7 @@ public class MultipleBoidsSimulator implements Simulable {
             boidsSimulator.getBoids().setBoidsInit();
             boidsSimulator.getEventManager().setCurrentDate(-1);
             boidsSimulator.getBoids().setCenterOfMass();
+            boidsSimulator.setDate(0);
         }
         draw();
     }
